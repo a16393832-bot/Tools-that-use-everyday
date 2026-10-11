@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+<title>Pocket Toolbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Concept: a black night sky. Stars twinkle and hearts drift up behind everything, headline words wander off and come back, a marquee of tool names slides across. Single dark theme by choice. */
+:root{
+  --bg:#06050A; --surface:#110F18; --ink:#F6F3FB; --muted:#A8A3B8; --line:#2A2636;
+  --accent:#FF5C9A; --accent-ink:#1A0612; --gold:#FFD166; --on:#0D0B12;
+  --c-words:#5EEAD4; --c-qr:#8BA2FF; --c-img:#FF9A66; --c-pw:#B6A0FF; --c-case:#FF7EB6; --c-calc:#FFD166;
+  --tool:#5EEAD4;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"DM Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;padding-inline:16px;padding-block:0 40px;position:relative;overflow-x:hidden}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.bar,.wrap{position:relative;z-index:1}
+a{color:inherit}
+.wrap{max-width:1040px;margin-inline:auto}
+section.block{display:flex;flex-direction:column;gap:20px;padding-block:48px 0}
+.eyebrow{font-family:var(--mono);font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin:0;display:flex;align-items:center;gap:8px}
+.eyebrow svg{width:14px;height:14px;fill:var(--gold)}
+h2.title{font-family:var(--display);font-weight:800;font-size:clamp(1.7rem,5vw,2.5rem);letter-spacing:-.025em;line-height:1.1;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:56ch}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* Top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(6,5,10,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);margin-inline:-16px;padding-inline:16px}
+.bar .wrap{display:flex;align-items:center;gap:20px;height:60px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:1.2rem;letter-spacing:-.02em;text-decoration:none}
+.mark{width:32px;height:32px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center}
+.mark svg{width:18px;height:18px}
+.links{display:flex;gap:22px;margin-left:auto;font-size:.95rem;font-weight:500}
+.links a{text-decoration:none;color:var(--muted)}
+.links a:hover{color:var(--ink)}
+.cta{font:inherit;font-weight:700;font-size:.92rem;padding:9px 16px;border-radius:999px;background:var(--accent);color:var(--accent-ink);text-decoration:none;white-space:nowrap}
+.bar .cta{margin-left:auto}
+.links+.cta{margin-left:0}
+@media (max-width:700px){.links{display:none}}
+
+/* Hero */
+.hero{position:relative;overflow:hidden;margin-top:20px;border-radius:28px;border:1px solid var(--line);background-color:rgba(12,10,18,.78);
+  background-image:radial-gradient(520px 320px at 90% 0%,rgba(255,92,154,.30),transparent 70%),radial-gradient(440px 320px at 0% 100%,rgba(94,234,212,.20),transparent 70%);
+  padding:40px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:36px}
+.hero>*{position:relative;z-index:1}
+.hero-text{flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:18px}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(2.4rem,8vw,4.2rem);letter-spacing:-.035em;line-height:1;margin:0}
+.w{display:inline-block;animation:wander 8s ease-in-out infinite;animation-delay:var(--d,0s);will-change:transform}
+.w.gold{color:var(--gold)}
+.w.pink{color:var(--accent)}
+@keyframes wander{
+  0%,22%{transform:none}
+  42%,58%{transform:translate(var(--dx),var(--dy)) rotate(var(--r))}
+  80%,100%{transform:none}
+}
+.hero p{margin:0;color:var(--muted);font-size:1.08rem;max-width:44ch}
+.hero-btns{display:flex;flex-wrap:wrap;gap:10px}
+.hero .cta{background:var(--gold);color:#2A2100;padding:13px 24px;font-size:1rem}
+.ghost{font-weight:700;padding:13px 22px;border-radius:999px;border:1.5px solid var(--line);color:var(--ink);text-decoration:none}
+.trust{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.88rem;color:var(--muted)}
+.trust span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:7px}
+
+/* Mock window */
+.mock{flex:1 1 340px;min-width:0;position:relative;padding:0 0 46px}
+.win{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 50px rgba(255,92,154,.12);overflow:hidden;animation:bob 6s ease-in-out infinite}
+.win-top{display:flex;align-items:center;gap:6px;padding:11px 14px;border-bottom:1px solid var(--line);font-size:.8rem;color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:50%}
+.win-top b{margin-left:8px;color:var(--ink);font-weight:700}
+.win-body{padding:16px;display:flex;flex-direction:column;gap:12px}
+.lines{display:flex;flex-direction:column;gap:8px}
+.lines i{display:block;height:9px;border-radius:5px;background:var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--mono);font-size:.78rem;padding:5px 10px;border-radius:8px;background:color-mix(in srgb,var(--c-words) 16%,var(--surface));color:var(--ink)}
+.float{position:absolute;border-radius:14px;box-shadow:0 16px 36px rgba(0,0,0,.6);padding:12px}
+.float.qr{right:0;bottom:0;width:112px;background:#fff;transform:rotate(4deg);animation:bob2 5s ease-in-out infinite}
+.float.qr svg{display:block;width:100%;height:auto}
+.float.pw{left:0;bottom:6px;width:172px;background:var(--surface);border:1px solid var(--line);transform:rotate(-3deg);display:flex;flex-direction:column;gap:8px;font-size:.78rem;animation:bob2 6.5s ease-in-out infinite reverse}
+.float.pw b{font-family:var(--mono);letter-spacing:.12em;color:var(--gold)}
+.meter{height:6px;border-radius:4px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;width:82%;background:var(--c-pw)}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes bob2{0%,100%{translate:0 0}50%{translate:0 -10px}}
+
+/* Marquee */
+.marquee{overflow:hidden;margin-top:28px;border-block:1px solid var(--line);padding-block:14px;background:rgba(17,15,24,.6)}
+.track{display:flex;align-items:center;gap:26px;width:max-content;animation:slide 30s linear infinite;font-family:var(--display);font-weight:700;font-size:1.25rem;white-space:nowrap}
+.track svg{width:18px;height:18px;flex:none}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+/* Tool cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{text-align:left;font:inherit;color:inherit;background:rgba(17,15,24,.88);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px;cursor:pointer;min-width:0;transition:transform .2s,border-color .2s,box-shadow .2s}
+.card:hover{border-color:var(--c);transform:translateY(-4px);box-shadow:0 12px 40px color-mix(in srgb,var(--c) 22%,transparent)}
+.card .ic{width:48px;height:48px;border-radius:14px;background:var(--c);color:var(--on);display:flex;align-items:center;justify-content:center}
+.card .ic svg{width:26px;height:26px}
+.card h3{font-family:var(--display);font-size:1.25rem;margin:0;letter-spacing:-.01em}
+.card p{margin:0;color:var(--muted);font-size:.93rem}
+.card .go{margin-top:auto;font-weight:700;font-size:.9rem;color:var(--c)}
+
+/* Workspace */
+nav[role=tablist]{display:flex;flex-wrap:wrap;gap:8px}
+nav button{font:inherit;font-weight:500;font-size:.92rem;padding:8px 14px 8px 8px;border-radius:999px;border:1px solid var(--line);background:rgba(17,15,24,.88);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:8px}
+nav button .ic{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--c);color:var(--on)}
+nav button .ic svg{width:14px;height:14px}
+nav button[aria-selected=true]{border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c);background:color-mix(in srgb,var(--c) 18%,var(--surface))}
+.panel{background:rgba(17,15,24,.92);border:1px solid var(--line);border-top:4px solid var(--tool);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:16px;min-width:0;box-shadow:0 0 50px color-mix(in srgb,var(--tool) 14%,transparent)}
+.ph{display:flex;align-items:center;gap:12px}
+.badge{flex:none;width:44px;height:44px;border-radius:13px;background:var(--tool);color:var(--on);display:flex;align-items:center;justify-content:center}
+.badge svg{width:24px;height:24px}
+.panel h2{font-family:var(--display);font-size:1.5rem;letter-spacing:-.02em;margin:0;text-wrap:balance;line-height:1.1}
+.panel p.hint{margin:0;color:var(--muted);font-size:.92rem}
+label{display:flex;flex-direction:column;gap:6px;font-weight:500;font-size:.9rem;min-width:0}
+input[type=text],input[type=number],textarea,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;min-width:0}
+input[type=file]{color:var(--muted);font:inherit}
+textarea{min-height:150px;resize:vertical}
+input[type=range],input[type=checkbox]{accent-color:var(--tool)}
+input[type=range]{width:100%}
+.row{display:flex;flex-wrap:wrap;gap:12px}
+.row>*{flex:1 1 140px;min-width:0}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-weight:500;padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--tool);border-color:var(--tool);color:var(--on)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.stat b{font-family:var(--mono);font-size:1.4rem;font-variant-numeric:tabular-nums;color:var(--tool)}
+.stat span{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.qrbox{background:#fff;padding:12px;border-radius:14px;align-self:flex-start;max-width:100%}
+.qrbox img{display:block;max-width:100%;height:auto;image-rendering:pixelated}
+.out{font-family:var(--mono);font-size:1.15rem;background:var(--bg);border:1px dashed var(--tool);border-radius:12px;padding:14px;word-break:break-all;font-variant-numeric:tabular-nums;color:var(--gold)}
+.preview{max-width:100%;height:auto;border-radius:12px;border:1px solid var(--line);display:block}
+.meta{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.ad{margin-top:48px;border:1px dashed var(--line);border-radius:14px;min-height:90px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:.8rem;padding:10px;letter-spacing:.04em;background-image:repeating-linear-gradient(135deg,transparent 0 10px,rgba(255,255,255,.04) 10px 11px)}
+
+/* Reasons and FAQ */
+.reasons{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.reason{background:rgba(17,15,24,.88);border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.reason .n{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;color:var(--c)}
+.reason h3{font-family:var(--display);font-size:1.15rem;margin:0}
+.reason p{margin:0;color:var(--muted);font-size:.93rem}
+.faq{display:flex;flex-direction:column;gap:10px;max-width:760px}
+details{background:rgba(17,15,24,.88);border:1px solid var(--line);border-radius:16px;padding:14px 18px}
+summary{font-weight:700;cursor:pointer}
+details p{margin:10px 0 0;color:var(--muted)}
+footer{margin-top:56px;border-top:1px solid var(--line);padding-top:24px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px 32px;color:var(--muted);font-size:.9rem}
+footer .logo{color:var(--ink);font-size:1.05rem}
+footer .fl{display:flex;gap:18px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){
+  .w,.win,.float,.track{animation:none!important}
+  .card,#toast{transition:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<div class="bar">
+  <div class="wrap">
+    <a class="logo" href="#top"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Pocket Toolbox</a>
+    <div class="links"><a href="#tools">Tools</a><a href="#why">Why it's private</a><a href="#faq">Questions</a></div>
+    <a class="cta" href="#workspace">Open tools</a>
+  </div>
+</div>
+
+<div class="wrap" id="top">
+  <header class="hero">
+    <div class="hero-text">
+      <h1 id="headline">Small jobs, done in seconds.</h1>
+      <p>Count words, make QR codes, shrink photos, create strong passwords and work out discounts. Free, no sign-up, and nothing leaves your device.</p>
+      <div class="hero-btns"><a class="cta" href="#workspace">Try it now</a><a class="ghost" href="#tools">See all 6 tools</a></div>
+      <div class="trust"><span>No sign-up</span><span>No uploads</span><span>Works on phone</span></div>
+    </div>
+    <div class="mock" aria-hidden="true">
+      <div class="win">
+        <div class="win-top"><i class="dot" style="background:#FF6B5E"></i><i class="dot" style="background:#FFC02E"></i><i class="dot" style="background:#2FCB53"></i><b>Word counter</b></div>
+        <div class="win-body">
+          <div class="lines"><i style="width:96%"></i><i style="width:88%"></i><i style="width:92%"></i><i style="width:54%"></i></div>
+          <div class="chips"><span class="chip">128 words</span><span class="chip">742 characters</span><span class="chip">1 min read</span></div>
+        </div>
+      </div>
+      <div class="float pw"><span>Password</span><b>k7#Qm2!xRv9$</b><div class="meter"><i></i></div></div>
+      <div class="float qr"><svg viewBox="0 0 21 21" shape-rendering="crispEdges"><rect width="21" height="21" fill="#fff"/><g fill="#13232B"><path d="M0 0h7v7H0zM14 0h7v7h-7zM0 14h7v7H0z"/><path d="M2 2h3v3H2zM16 2h3v3h-3zM2 16h3v3H2z" fill="#fff"/><path d="M3 3h1v1H3zM17 3h1v1h-1zM3 17h1v1H3zM9 0h2v2H9zM8 3h2v2H8zM11 4h2v3h-2zM9 8h3v2H9zM13 9h2v3h-2zM16 9h5v2h-5zM8 12h3v2H8zM12 14h3v2h-3zM16 13h2v3h-2zM19 15h2v3h-2zM9 16h2v3H9zM12 18h4v3h-4zM18 19h3v2h-3zM0 9h3v2H0zM4 8h3v3H4z"/></g></svg></div>
+    </div>
+  </header>
+
+  <div class="marquee" aria-hidden="true"><div class="track" id="track"></div></div>
+
+  <section class="block" id="tools">
+    <p class="eyebrow"><svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6z"/></svg>What you can do</p>
+    <h2 class="title">Six tools you will actually use</h2>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <div class="ad" aria-label="Advertisement placeholder">AD SLOT (top banner, paste your Google AdSense code here)</div>
+
+  <section class="block" id="workspace">
+    <p class="eyebrow"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.8 8.4 2.9 4.5 6.6 4.5c2 0 3.8 1.1 5.4 3 1.6-1.9 3.4-3 5.4-3 3.7 0 5.8 3.9 4.2 7.3C19.5 16.4 12 21 12 21z"/></svg>Workspace</p>
+    <h2 class="title">Pick a tool and start</h2>
+    <nav role="tablist" aria-label="Tools" id="tabs"></nav>
+
+    <!-- Word counter -->
+    <section class="panel" id="p-words" role="tabpanel">
+      <div class="ph"><div class="badge" data-ic="words"></div><h2>Word counter</h2></div>
+      <p class="hint">Paste an essay, caption or message. Counts update as you type.</p>
+      <label for="wc-text">Your text
+        <textarea id="wc-text">Selamat datang to Pocket Toolbox. Paste your own writing here to see how many words, sentences and paragraphs it has, and how long it takes to read.
+
+This sample text has two paragraphs.</textarea>
+      </label>
+      <div class="stats" id="wc-stats"></div>
+    </section>
+
+    <!-- QR -->
+    <section class="panel" id="p-qr" role="tabpanel" hidden>
+      <div class="ph"><div class="badge" data-ic="qr"></div><h2>QR code maker</h2></div>
+      <p class="hint">Turn a link, Wi-Fi note or any text into a QR code. Press and hold the code (or right-click) to save it.</p>
+      <label for="qr-text">Text or link
+        <input type="text" id="qr-text" value="https://example.com">
+      </label>
+      <div class="row">
+        <label for="qr-size">Size
+          <select id="qr-size"><option value="5">Small</option><option value="8" selected>Medium</option><option value="12">Large</option></select>
+        </label>
+        <label for="qr-ec">Error correction
+          <select id="qr-ec"><option value="L">Low</option><option value="M" selected>Medium</option><option value="Q">Quartile</option><option value="H">High</option></select>
+        </label>
+      </div>
+      <div class="qrbox" id="qr-out"></div>
+      <p class="hint" id="qr-msg"></p>
+    </section>
+
+    <!-- Image resizer -->
+    <section class="panel" id="p-img" role="tabpanel" hidden>
+      <div class="ph"><div class="badge" data-ic="img"></div><h2>Image resizer and compressor</h2></div>
+      <p class="hint">Pick a photo, set a width, lower the quality to shrink the file. Press and hold the result (or right-click) to save it.</p>
+      <label for="im-file">Choose an image
+        <input type="file" id="im-file" accept="image/*">
+      </label>
+      <div class="row">
+        <label for="im-w">Width (px)<input type="number" id="im-w" min="16" max="8000" value="600"></label>
+        <label for="im-h">Height (px)<input type="number" id="im-h" min="16" max="8000" value="400"></label>
+        <label for="im-fmt">Format
+          <select id="im-fmt"><option value="image/jpeg">JPEG</option><option value="image/webp">WebP</option><option value="image/png">PNG</option></select>
+        </label>
+      </div>
+      <label for="im-q">Quality: <span id="im-qv" class="meta">75%</span>
+        <input type="range" id="im-q" min="10" max="100" value="75">
+      </label>
+      <img id="im-out" class="preview" alt="Resized image preview">
+      <p class="meta" id="im-info"></p>
+    </section>
+
+    <!-- Password -->
+    <section class="panel" id="p-pw" role="tabpanel" hidden>
+      <div class="ph"><div class="badge" data-ic="pw"></div><h2>Password generator</h2></div>
+      <p class="hint">Random passwords made with your browser's secure random generator.</p>
+      <label for="pw-len">Length: <span id="pw-lv" class="meta">16</span>
+        <input type="range" id="pw-len" min="8" max="64" value="16">
+      </label>
+      <div class="btns" id="pw-opts">
+        <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="pw-up" checked> A-Z</label>
+        <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="pw-lo" checked> a-z</label>
+        <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="pw-nu" checked> 0-9</label>
+        <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="pw-sy" checked> !@#$</label>
+      </div>
+      <div class="out" id="pw-out"></div>
+      <div class="btns">
+        <button class="btn primary" id="pw-gen" type="button">Generate new</button>
+        <button class="btn" id="pw-copy" type="button">Copy</button>
+      </div>
+    </section>
+
+    <!-- Case -->
+    <section class="panel" id="p-case" role="tabpanel" hidden>
+      <div class="ph"><div class="badge" data-ic="case"></div><h2>Text case converter</h2></div>
+      <p class="hint">Change the case of any text, or turn a title into a URL slug.</p>
+      <label for="cs-text">Your text
+        <textarea id="cs-text">pocket toolbox makes small jobs quick</textarea>
+      </label>
+      <div class="btns" id="cs-btns"></div>
+    </section>
+
+    <!-- Discount -->
+    <section class="panel" id="p-calc" role="tabpanel" hidden>
+      <div class="ph"><div class="badge" data-ic="calc"></div><h2>Discount and tax calculator</h2></div>
+      <p class="hint">Work out the final price after a sale discount and tax. Amounts in RM.</p>
+      <div class="row">
+        <label for="dc-price">Original price (RM)<input type="number" id="dc-price" min="0" step="0.01" value="249.90"></label>
+        <label for="dc-off">Discount (%)<input type="number" id="dc-off" min="0" max="100" step="0.5" value="30"></label>
+        <label for="dc-tax">Tax (%)<input type="number" id="dc-tax" min="0" max="100" step="0.5" value="8"></label>
+      </div>
+      <div class="stats" id="dc-stats"></div>
+      <p class="hint">Tax is applied after the discount. Set it to 0 if the price already includes tax.</p>
+    </section>
+  </section>
+
+  <section class="block" id="why">
+    <p class="eyebrow"><svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6z"/></svg>Why it's private</p>
+    <h2 class="title">Your files stay on your device</h2>
+    <p class="lead">Most free tool sites upload your photos and text to their servers. Pocket Toolbox does the work inside your own browser instead.</p>
+    <div class="reasons">
+      <div class="reason" style="--c:var(--c-words)"><span class="n">0</span><h3>Files uploaded</h3><p>Photos, text and passwords never leave your phone or computer.</p></div>
+      <div class="reason" style="--c:var(--c-case)"><span class="n">0</span><h3>Accounts needed</h3><p>Open the page and use it. No email, no sign-up, no waiting.</p></div>
+      <div class="reason" style="--c:var(--c-calc)"><span class="n">RM0</span><h3>Cost to use</h3><p>Free for everyone. The site is supported by small ads.</p></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq">
+    <p class="eyebrow"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.8 8.4 2.9 4.5 6.6 4.5c2 0 3.8 1.1 5.4 3 1.6-1.9 3.4-3 5.4-3 3.7 0 5.8 3.9 4.2 7.3C19.5 16.4 12 21 12 21z"/></svg>Questions</p>
+    <h2 class="title">Quick answers</h2>
+    <div class="faq">
+      <details><summary>Is it really free?</summary><p>Yes. Every tool is free to use with no limits. Ads on the page cover the running costs.</p></details>
+      <details><summary>Are my photos or text sent to a server?</summary><p>No. Everything is processed in your browser, so the content stays on your device.</p></details>
+      <details><summary>How do I save a QR code or resized image?</summary><p>Press and hold the picture on a phone, or right-click it on a computer, then choose save image.</p></details>
+      <details><summary>Does it work on my phone?</summary><p>Yes. The page is built for phone screens first and also works on tablets and computers.</p></details>
+    </div>
+  </section>
+
+  <div class="ad" aria-label="Advertisement placeholder">AD SLOT (bottom banner, paste your Google AdSense code here)</div>
+
+  <footer>
+    <div><a class="logo" href="#top"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Pocket Toolbox</a></div>
+    <div class="fl"><a href="#tools">Tools</a><a href="#why">Privacy</a><a href="#faq">Questions</a></div>
+    <div>Free everyday tools. Everything runs in your browser.</div>
+  </footer>
+</div>
+<div id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+(function(){
+  var $ = function(id){return document.getElementById(id)};
+  var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Night sky: twinkling stars, drifting hearts and stars ---------- */
+  (function(){
+    var cv=$('sky'), ctx=cv.getContext('2d'), W=0,H=0,DPR=1, parts=[];
+    var COLORS=['#FF5C9A','#FFD166','#5EEAD4','#B6A0FF','#FF9A66','#8BA2FF'];
+    function rnd(a,b){return a+Math.random()*(b-a)}
+    function resize(){
+      DPR=Math.min(2,window.devicePixelRatio||1);
+      W=window.innerWidth; H=window.innerHeight;
+      cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0);
+    }
+    function build(){
+      parts=[];
+      var n=Math.round(Math.min(140,Math.max(60,W*H/9000)));
+      for(var i=0;i<n;i++) parts.push({k:'dot',x:rnd(0,W),y:rnd(0,H),s:rnd(.6,1.8),ph:rnd(0,6.28),sp:rnd(.6,2.2),c:'#FFFFFF'});
+      for(var j=0;j<10;j++) parts.push({k:'spark',x:rnd(0,W),y:rnd(0,H),s:rnd(4,9),ph:rnd(0,6.28),sp:rnd(.8,1.8),c:j%2?'#FFD166':'#FFFFFF'});
+      var f=Math.round(Math.min(26,Math.max(12,W/40)));
+      for(var m=0;m<f;m++) parts.push({k:m%3===0?'star':'heart',x:rnd(0,W),y:rnd(0,H),s:rnd(5,13),vy:rnd(.12,.4),sw:rnd(10,28),ph:rnd(0,6.28),sp:rnd(.4,1),rot:rnd(-.5,.5),c:COLORS[m%COLORS.length],a:rnd(.28,.6)});
+    }
+    function heart(x,y,s){
+      ctx.beginPath(); ctx.moveTo(x,y+s*.35);
+      ctx.bezierCurveTo(x,y-s*.3,x-s,y-s*.3,x-s,y+s*.35);
+      ctx.bezierCurveTo(x-s,y+s*.85,x,y+s*1.1,x,y+s*1.5);
+      ctx.bezierCurveTo(x,y+s*1.1,x+s,y+s*.85,x+s,y+s*.35);
+      ctx.bezierCurveTo(x+s,y-s*.3,x,y-s*.3,x,y+s*.35); ctx.fill();
+    }
+    function star(x,y,r){
+      ctx.beginPath();
+      for(var i=0;i<10;i++){var a=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.45:r; ctx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}
+      ctx.closePath(); ctx.fill();
+    }
+    function spark(x,y,r){
+      ctx.beginPath(); ctx.moveTo(x,y-r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.quadraticCurveTo(x,y,x,y+r); ctx.quadraticCurveTo(x,y,x-r,y); ctx.quadraticCurveTo(x,y,x,y-r); ctx.fill();
+    }
+    function frame(t){
+      t=t/1000; ctx.clearRect(0,0,W,H);
+      for(var i=0;i<parts.length;i++){
+        var p=parts[i];
+        if(p.k==='dot'){
+          ctx.globalAlpha=REDUCED?.6:.25+.75*(.5+.5*Math.sin(t*p.sp+p.ph)); ctx.fillStyle=p.c;
+          ctx.beginPath(); ctx.arc(p.x,p.y,p.s,0,6.283); ctx.fill();
+        } else if(p.k==='spark'){
+          var tw=REDUCED?.8:.3+.7*(.5+.5*Math.sin(t*p.sp+p.ph)); ctx.globalAlpha=tw; ctx.fillStyle=p.c; spark(p.x,p.y,p.s*(.7+.3*tw));
+        } else {
+          if(!REDUCED){ p.y-=p.vy; if(p.y<-30){p.y=H+30; p.x=rnd(0,W);} }
+          var x=p.x+Math.sin(t*p.sp+p.ph)*p.sw*(REDUCED?0:1), y=p.y;
+          ctx.save(); ctx.translate(x,y); ctx.rotate(p.rot+(REDUCED?0:Math.sin(t*p.sp+p.ph)*.25));
+          ctx.globalAlpha=p.a; ctx.fillStyle=p.c;
+          if(p.k==='heart') heart(0,-p.s*.6,p.s); else star(0,0,p.s*1.1);
+          ctx.restore();
+        }
+      }
+      ctx.globalAlpha=1;
+      if(!REDUCED && !document.hidden) requestAnimationFrame(frame);
+    }
+    function start(){resize(); build(); requestAnimationFrame(frame);}
+    var rt; window.addEventListener('resize',function(){clearTimeout(rt); rt=setTimeout(function(){resize(); build(); if(REDUCED) frame(0);},150);});
+    document.addEventListener('visibilitychange',function(){ if(!document.hidden && !REDUCED) requestAnimationFrame(frame);});
+    start();
+  })();
+
+  /* ---------- Headline words that wander off and come back ---------- */
+  (function(){
+    var h=$('headline');
+    var words=[['Small',''],['jobs,','pink'],['done','gold'],['in','gold'],['seconds.','gold']];
+    var moves=[[-26,-18,-8],[30,-22,7],[-22,26,-6],[34,16,9],[-30,-14,-5]];
+    h.innerHTML=words.map(function(w,i){
+      var m=moves[i];
+      return '<span class="w '+w[1]+'" style="--dx:'+m[0]+'px;--dy:'+m[1]+'px;--r:'+m[2]+'deg;--d:'+(i*0.35)+'s">'+w[0]+'</span>';
+    }).join(' ');
+  })();
+
+  /* ---------- Marquee ---------- */
+  (function(){
+    var names=['Word counter','QR codes','Image resizer','Passwords','Text case','Discounts'];
+    var cols=['#5EEAD4','#8BA2FF','#FF9A66','#B6A0FF','#FF7EB6','#FFD166'];
+    var star='<svg viewBox="0 0 24 24" fill="#FFD166"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6z"/></svg>';
+    var heart='<svg viewBox="0 0 24 24" fill="#FF5C9A"><path d="M12 21s-7.5-4.6-9.6-9.2C.8 8.4 2.9 4.5 6.6 4.5c2 0 3.8 1.1 5.4 3 1.6-1.9 3.4-3 5.4-3 3.7 0 5.8 3.9 4.2 7.3C19.5 16.4 12 21 12 21z"/></svg>';
+    var one=names.map(function(n,i){return '<span style="color:'+cols[i]+'">'+n+'</span>'+(i%2?heart:star)}).join('');
+    $('track').innerHTML=one+one;
+  })();
+
+  /* ---------- Tools ---------- */
+  var TOOLS = [
+    ['words','Word counter','Count words, characters, sentences and reading time as you type.'],
+    ['qr','QR code maker','Turn any link or text into a scannable QR code.'],
+    ['img','Image resizer','Shrink photo size and file weight before you send or upload.'],
+    ['pw','Password generator','Create long random passwords with a secure generator.'],
+    ['case','Text case converter','UPPER, lower, Title, camelCase and URL slugs in one tap.'],
+    ['calc','Discount calculator','Find the final price after a sale discount and tax, in RM.']
+  ];
+  var SV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
+  var ICONS={
+    words:SV+'<path d="M4 6h16M4 12h16M4 18h10"/></svg>',
+    qr:SV+'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM17 20h4M20 17v0"/></svg>',
+    img:SV+'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></svg>',
+    pw:SV+'<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>',
+    case:SV+'<path d="M3 18L8 6l5 12M5 14h6M16 18v-6a3 3 0 016 0v6M16 15h6"/></svg>',
+    calc:SV+'<path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg>'
+  };
+  var tabs = $('tabs');
+  function toast(msg){
+    var t=$('toast'); t.textContent=msg; t.classList.add('show');
+    clearTimeout(toast._t); toast._t=setTimeout(function(){t.classList.remove('show')},1600);
+  }
+  function copyText(text, sourceEl){
+    function fallback(){
+      if(sourceEl && sourceEl.select){ sourceEl.select(); }
+      toast('Select the text and copy it');
+    }
+    try{
+      navigator.clipboard.writeText(text).then(function(){toast('Copied')},fallback);
+    }catch(e){fallback();}
+  }
+  function show(id){
+    TOOLS.forEach(function(t){
+      var p=$('p-'+t[0]); p.hidden = t[0]!==id;
+      p.style.setProperty('--tool','var(--c-'+t[0]+')');
+      $('tab-'+t[0]).setAttribute('aria-selected', String(t[0]===id));
+    });
+  }
+  TOOLS.forEach(function(t){
+    var b=document.createElement('button');
+    b.type='button'; b.id='tab-'+t[0]; b.setAttribute('role','tab');
+    b.style.setProperty('--c','var(--c-'+t[0]+')');
+    b.innerHTML='<span class="ic">'+ICONS[t[0]]+'</span><span>'+t[1]+'</span>';
+    b.addEventListener('click',function(){show(t[0])});
+    tabs.appendChild(b);
+    var c=document.createElement('button');
+    c.type='button'; c.className='card'; c.style.setProperty('--c','var(--c-'+t[0]+')');
+    c.innerHTML='<span class="ic">'+ICONS[t[0]]+'</span><h3>'+t[1]+'</h3><p>'+t[2]+'</p><span class="go">Open tool</span>';
+    c.addEventListener('click',function(){show(t[0]); $('workspace').scrollIntoView({behavior:REDUCED?'auto':'smooth',block:'start'});});
+    $('cards').appendChild(c);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.badge[data-ic]'),function(el){el.innerHTML=ICONS[el.getAttribute('data-ic')]});
+
+  /* Word counter */
+  function wc(){
+    var s=$('wc-text').value;
+    var words=(s.trim().match(/\S+/g)||[]).length;
+    var chars=s.length, noSp=s.replace(/\s/g,'').length;
+    var sent=(s.match(/[^.!?]+[.!?]+(\s|$)/g)||[]).length || (words?1:0);
+    var paras=s.split(/\n\s*\n/).filter(function(p){return p.trim()}).length;
+    var mins=words/200; var rt = words===0?'0 sec': mins<1? Math.max(1,Math.round(mins*60))+' sec' : Math.ceil(mins)+' min';
+    var items=[[words,'Words'],[chars,'Characters'],[noSp,'No spaces'],[sent,'Sentences'],[paras,'Paragraphs'],[rt,'Reading time']];
+    $('wc-stats').innerHTML=items.map(function(i){return '<div class="stat"><b>'+i[0]+'</b><span>'+i[1]+'</span></div>'}).join('');
+  }
+  $('wc-text').addEventListener('input',wc); wc();
+
+  /* QR */
+  function qr(){
+    var text=$('qr-text').value;
+    var out=$('qr-out'), msg=$('qr-msg');
+    if(!text){out.innerHTML=''; msg.textContent='Type something above to make a code.'; return;}
+    try{
+      var q=qrcode(0,$('qr-ec').value); q.addData(text); q.make();
+      var url=q.createDataURL(parseInt($('qr-size').value,10),2);
+      out.innerHTML='<img alt="QR code for the text you entered" src="'+url+'">';
+      msg.textContent='Scan with any phone camera to test it.';
+    }catch(e){
+      out.innerHTML=''; msg.textContent='That text is too long for a QR code. Shorten it or lower the error correction.';
+    }
+  }
+  ['qr-text','qr-size','qr-ec'].forEach(function(id){$(id).addEventListener('input',qr)});
+  if(window.qrcode){qr();} else {$('qr-msg').textContent='The QR library could not load. Check your connection and reload.';}
+
+  /* Image resizer */
+  var src=null, srcName='Sample image', srcBytes=0, ratio=1.5;
+  function makeSample(){
+    var c=document.createElement('canvas'); c.width=1200; c.height=800;
+    var g=c.getContext('2d'); var gr=g.createLinearGradient(0,0,1200,800);
+    gr.addColorStop(0,'#FF5C9A'); gr.addColorStop(1,'#FFD166'); g.fillStyle=gr; g.fillRect(0,0,1200,800);
+    g.fillStyle='rgba(255,255,255,.9)'; g.font='700 72px sans-serif'; g.fillText('Sample photo',60,420);
+    g.font='400 36px sans-serif'; g.fillText('Choose your own image above',60,480);
+    return c;
+  }
+  function render(){
+    if(!src) return;
+    var w=Math.max(16,parseInt($('im-w').value,10)||16), h=Math.max(16,parseInt($('im-h').value,10)||16);
+    var c=document.createElement('canvas'); c.width=w; c.height=h;
+    var g=c.getContext('2d');
+    if($('im-fmt').value==='image/jpeg'){g.fillStyle='#fff'; g.fillRect(0,0,w,h);}
+    g.imageSmoothingQuality='high'; g.drawImage(src,0,0,w,h);
+    var q=parseInt($('im-q').value,10)/100;
+    var url=c.toDataURL($('im-fmt').value,q);
+    $('im-out').src=url;
+    var bytes=Math.round((url.length-url.indexOf(',')-1)*0.75);
+    var info=srcName+': '+(src.naturalWidth||src.width)+' x '+(src.naturalHeight||src.height)+' px';
+    if(srcBytes) info+=' ('+(srcBytes/1024).toFixed(0)+' KB)';
+    info+=' becomes '+w+' x '+h+' px ('+(bytes/1024).toFixed(0)+' KB)';
+    if(srcBytes && bytes<srcBytes) info+=', '+Math.round((1-bytes/srcBytes)*100)+'% smaller';
+    $('im-info').textContent=info;
+  }
+  function setSrc(el,name,bytes){
+    src=el; srcName=name; srcBytes=bytes;
+    var sw=el.naturalWidth||el.width, sh=el.naturalHeight||el.height;
+    ratio=sw/sh;
+    var w=Math.min(600,sw);
+    $('im-w').value=w; $('im-h').value=Math.round(w/ratio); render();
+  }
+  $('im-w').addEventListener('input',function(){ $('im-h').value=Math.round((parseInt(this.value,10)||0)/ratio); render();});
+  $('im-h').addEventListener('input',function(){ $('im-w').value=Math.round((parseInt(this.value,10)||0)*ratio); render();});
+  $('im-fmt').addEventListener('input',render);
+  $('im-q').addEventListener('input',function(){ $('im-qv').textContent=this.value+'%'; render();});
+  $('im-file').addEventListener('change',function(){
+    var f=this.files&&this.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(){ var im=new Image(); im.onload=function(){setSrc(im,f.name,f.size)}; im.onerror=function(){toast('That file is not an image')}; im.src=r.result;};
+    r.readAsDataURL(f);
+  });
+  setSrc(makeSample(),'Sample image',0);
+
+  /* Password */
+  function pw(){
+    var sets=[];
+    if($('pw-up').checked) sets.push('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+    if($('pw-lo').checked) sets.push('abcdefghijklmnopqrstuvwxyz');
+    if($('pw-nu').checked) sets.push('0123456789');
+    if($('pw-sy').checked) sets.push('!@#$%^&*()-_=+[]{};:,.?');
+    var out=$('pw-out');
+    if(!sets.length){out.textContent='Tick at least one box above.'; return;}
+    var len=parseInt($('pw-len').value,10), all=sets.join('');
+    function rnd(n){var a=new Uint32Array(1), lim=Math.floor(4294967296/n)*n; do{crypto.getRandomValues(a)}while(a[0]>=lim); return a[0]%n;}
+    var chars=sets.map(function(s){return s[rnd(s.length)]});
+    while(chars.length<len) chars.push(all[rnd(all.length)]);
+    for(var i=chars.length-1;i>0;i--){var j=rnd(i+1); var t=chars[i]; chars[i]=chars[j]; chars[j]=t;}
+    out.textContent=chars.slice(0,len).join('');
+  }
+  $('pw-len').addEventListener('input',function(){$('pw-lv').textContent=this.value; pw();});
+  ['pw-up','pw-lo','pw-nu','pw-sy'].forEach(function(id){$(id).addEventListener('change',pw)});
+  $('pw-gen').addEventListener('click',pw);
+  $('pw-copy').addEventListener('click',function(){copyText($('pw-out').textContent)});
+  pw();
+
+  /* Case converter */
+  function words(s){return s.replace(/[^A-Za-z0-9\s]+/g,' ').trim().split(/\s+/).filter(Boolean)}
+  var CASES=[
+    ['UPPERCASE',function(s){return s.toUpperCase()}],
+    ['lowercase',function(s){return s.toLowerCase()}],
+    ['Title Case',function(s){return s.toLowerCase().replace(/(^|\s)(\S)/g,function(m,a,b){return a+b.toUpperCase()})}],
+    ['Sentence case',function(s){return s.toLowerCase().replace(/(^\s*|[.!?]\s+)([a-z])/g,function(m,a,b){return a+b.toUpperCase()})}],
+    ['camelCase',function(s){return words(s).map(function(w,i){w=w.toLowerCase(); return i?w[0].toUpperCase()+w.slice(1):w}).join('')}],
+    ['snake_case',function(s){return words(s).map(function(w){return w.toLowerCase()}).join('_')}],
+    ['kebab-case (URL slug)',function(s){return words(s).map(function(w){return w.toLowerCase()}).join('-')}]
+  ];
+  var cb=$('cs-btns');
+  CASES.forEach(function(c){
+    var b=document.createElement('button'); b.type='button'; b.className='btn'; b.textContent=c[0];
+    b.addEventListener('click',function(){var t=$('cs-text'); t.value=c[1](t.value);});
+    cb.appendChild(b);
+  });
+  var cp=document.createElement('button'); cp.type='button'; cp.className='btn primary'; cp.textContent='Copy result';
+  cp.addEventListener('click',function(){copyText($('cs-text').value,$('cs-text'))}); cb.appendChild(cp);
+
+  /* Discount */
+  function money(n){return 'RM '+n.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})}
+  function dc(){
+    var p=parseFloat($('dc-price').value)||0, o=Math.min(100,Math.max(0,parseFloat($('dc-off').value)||0)), t=Math.max(0,parseFloat($('dc-tax').value)||0);
+    var saved=p*o/100, after=p-saved, tax=after*t/100, fin=after+tax;
+    var items=[[money(saved),'You save'],[money(after),'After discount'],[money(tax),'Tax'],[money(fin),'You pay']];
+    $('dc-stats').innerHTML=items.map(function(i){return '<div class="stat"><b style="font-size:1.15rem">'+i[0]+'</b><span>'+i[1]+'</span></div>'}).join('');
+  }
+  ['dc-price','dc-off','dc-tax'].forEach(function(id){$(id).addEventListener('input',dc)}); dc();
+
+  show('words');
+})();
+</script>
+
+</body>
+</html>
